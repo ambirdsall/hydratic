@@ -39,5 +39,5 @@
   (write! "Raylib is craaazzzzy" 50))
 
 # Local Variables:
-# ajrepl-start-cmd-line: ("jpm" "-l" "janet" "-s")
+# ajrepl-start-cmd-line: ("jpm" "-l" "janet" "-s" "-d")
 # End:
