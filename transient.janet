@@ -5,12 +5,15 @@
 (def font-size 40)
 (def spacing 1)
 
+(defn font-path [filename]
+  (string (os/getenv "HOME") "/.local/share/fonts/" filename))
+
 (defmacro in-window [width height title & forms]
   ~(do
      (,init-window ,width ,height ,title)
 
      (def font (,load-font-ex
-                 (string (os/getenv "HOME") "/.local/share/fonts/InterVariable.ttf")
+                 (font-path "InterVariable.ttf")
                  font-size))
 
      (defn write [text x-and-y-positions color]
