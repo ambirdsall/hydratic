@@ -6,13 +6,15 @@
 
 (defn- render-workspace-name! []
   (let [workspaces (j/decode ($<_ niri msg --json workspaces))
-        active-space ((find |(get $ "is_focused") workspaces) "name")]
+        active-space ((find |(get $ "is_focused") workspaces) "name")
+        start (os/time)]
     (in-window
       "where the fuck am i tho"
       (let [width (+ (text-width active-space) (* 2 x-margin))
-            height (+ font-size (* 2 y-margin))]
-        (r/set-window-size width height))
-
+            height (+ font-size (* 2 y-margin))
+            elapsed (- (os/time) start)]
+        (r/set-window-size width height)
+        (when (< 1 elapsed) (r/close-window)))
       (write-ln! active-space 1))))
 
 (defn- render-test-hydra! []
