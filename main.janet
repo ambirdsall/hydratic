@@ -15,7 +15,7 @@
             elapsed (- (os/time) start)]
         (r/set-window-size width height)
         (when (< 1 elapsed) (donezo!)))
-      (write-ln! active-space 1))))
+      (write-ln! active-space))))
 
 (defn- render-test-hydra! []
   (render-hydra!

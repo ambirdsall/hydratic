@@ -28,9 +28,6 @@
                  (font-path "InterVariable.ttf")
                  font-size))
 
-     # TODO encapsulate incrementing line count behind the API boundary, yeesh
-     # (var line 1)
-
      (defn text-width [text]
        (let [[width _] (,r/measure-text-ex font text font-size letter-spacing)]
          width))
@@ -38,17 +35,18 @@
      (defn write [text x-and-y-positions color]
          (,r/draw-text-ex font text x-and-y-positions font-size letter-spacing color))
 
-     (defn write-ln! [text line]
-       (let [y-offset (+ (* font-size (- line 1))
-                           (* line-spacing (- line 1))
+     (defn write-ln! [text]
+       (let [y-offset (+ (* font-size (- (dyn :line) 1))
+                           (* line-spacing (- (dyn :line) 1))
                          y-margin)]
-         (write text [x-margin y-offset] :green)))
+         (write text [x-margin y-offset] :green))
+       (setdyn :line (inc (dyn :line))))
 
-     (defn write-cmd! [key-char text line]
+     (defn write-cmd! [key-char text]
        (let [first (string/slice text 0 1)
              rest (string/slice text 1)
-             y-offset (+ (* font-size (- line 1))
-                           (* line-spacing (- line 1))
+             y-offset (+ (* font-size (- (dyn :line) 1))
+                           (* line-spacing (- (dyn :line) 1))
                          y-margin)
              x-offset-rest (+ (text-width first) x-margin letter-spacing)]
          (write "["
@@ -62,12 +60,14 @@
                 :green)
          (write text
                 [(+ x-margin (text-width (string "[" key-char "] "))) y-offset]
-                :green)))
+                :green))
+       (setdyn :line (inc (dyn :line))))
 
      (var donezo false)
      (defn donezo! [] (set donezo true))
 
      (while (not (or donezo (,r/window-should-close)))
+       (setdyn :line 1)
        (,r/begin-drawing)
        (,r/clear-background [0 0 0])
        (,r/draw-rectangle 0 0 ,window-width ,window-height :dark-gray)
@@ -82,15 +82,13 @@
     title
 
     (var longest 0)
-    (var line 1)
 
     (loop [[key spec] :pairs commands]
       (set longest (max
                      longest
                      (text-width (string "[" key "] " (spec :title)))))
-      (write-cmd! (string key) (spec :title) line)
-      (when (r/key-down? key) (set (spec :selected) true))
-      (set line (inc line)))
+      (write-cmd! (string key) (spec :title))
+      (when (r/key-down? key) (set (spec :selected) true)))
 
     (let [lines (length commands)
           height (+ (* font-size (length commands))
