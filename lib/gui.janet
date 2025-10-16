@@ -11,28 +11,24 @@
 (defn font-path [filename]
   (string (os/getenv "HOME") "/.local/share/fonts/" filename))
 
-(defmacro in-window [width height title & forms]
-  # TODO calculate window height and width
-  #   FOR 1-COLUMN:
-  #   width:  (+ width of longest line + 2 * x-margin)
-  #   height: (line height * (length commands))
-  #          (r/set-window-size width height)
-  #   FOR 2 COLUMN:
-  #   2. (width of longest even-indexed line
-  #       + width of longest odd-indexed line
-  #       + 3 * x-margin)
-  #
-  #   maybe use 2-column iff there are 6+ commands and no line >, say,
-  #     (* 0.4 r/get-screen-width))
-  #
+(var window-width 800)
+(var window-height 800)
+(var y-margin 10)
+(var x-margin 10)
+(var font-size 30)
+(var letter-spacing 1)
+(var line-spacing 10)
+
+(defmacro in-window [title & forms]
   ~(do
-     (,r/init-window ,width ,height ,title)
+     (,r/init-window ,window-width ,window-height ,title)
      # turns out raylib can crank through a game loop as simple as this one at 2K-7K fps
      # on my thinkpad, which is juuuuuuust a touch more than we need for static text
      (,r/set-target-fps 60)
      (def font (,r/load-font-ex
                  (font-path "InterVariable.ttf")
                  font-size))
+
 
      (defn text-width [text]
        (let [[width _] (,r/measure-text-ex font text font-size letter-spacing)]
@@ -67,19 +63,44 @@
                 [(+ x-margin (text-width (string "[" key-char "] "))) y-offset]
                 :green)))
 
+     # paint a basic backdrop for the window contents; client code can resize as needed
+
      (while (not (,r/window-should-close))
        (,r/begin-drawing)
        (,r/clear-background [0 0 0])
+       (,r/draw-rectangle 0 0 ,window-width ,window-height :dark-gray)
 
        ,;forms
 
        (,r/end-drawing))
      (,r/close-window)))
 
-(def window-width 800)
-(def window-height 800)
-(def y-margin 10)
-(def x-margin 10)
-(def font-size 30)
-(def letter-spacing 1)
-(def line-spacing 10)
+(defn render-hydra! [title commands]
+  (in-window
+    title
+
+    (var longest 0)
+    (var line 1)
+
+    (loop [[key spec] :pairs commands]
+      (set longest (max
+                     longest
+                     (text-width (string "[" key "] " (spec :title)))))
+      (write-cmd! (string key) (spec :title) line)
+      (when (r/key-down? key) (set (spec :selected) true))
+      (set line (inc line)))
+
+    (let [lines (length commands)
+          height (+ (* font-size (length commands))
+                    (* line-spacing (length commands))
+                    (* 2 y-margin))
+          width (+ longest (* 2 x-margin))]
+      (set window-width width)
+      (set window-height height)
+      (r/set-window-size width height))
+
+    (if-let [selected-cmd (find (fn [cmd] (cmd :selected)) (values commands))]
+      (do (r/close-window)
+        ((selected-cmd :fn))
+        # let's not re-run the cmd at 60 FPS or whatever
+        (set (selected-cmd :selected) nil)))))
