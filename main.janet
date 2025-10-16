@@ -9,7 +9,7 @@
         active-space ((find |(get $ "is_focused") workspaces) "name")
         start (os/time)]
     (in-window
-      "where the fuck am i tho"
+      "ok but where am i tho"
       (let [width (+ (text-width active-space) (* 2 x-margin))
             height (+ font-size (* 2 y-margin))
             elapsed (- (os/time) start)]
