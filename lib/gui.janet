@@ -1,4 +1,3 @@
-# TODO can I re-export jaylib utils?
 (import jaylib :as r) # the "r" is for "raylib"
 
 # TODO make this play more nicely with other people's computers
@@ -29,6 +28,8 @@
                  (font-path "InterVariable.ttf")
                  font-size))
 
+     # TODO encapsulate incrementing line count behind the API boundary, yeesh
+     # (var line 1)
 
      (defn text-width [text]
        (let [[width _] (,r/measure-text-ex font text font-size letter-spacing)]
@@ -63,9 +64,10 @@
                 [(+ x-margin (text-width (string "[" key-char "] "))) y-offset]
                 :green)))
 
-     # paint a basic backdrop for the window contents; client code can resize as needed
+     (var donezo false)
+     (defn donezo! [] (set donezo true))
 
-     (while (not (,r/window-should-close))
+     (while (not (or donezo (,r/window-should-close)))
        (,r/begin-drawing)
        (,r/clear-background [0 0 0])
        (,r/draw-rectangle 0 0 ,window-width ,window-height :dark-gray)
@@ -100,7 +102,7 @@
       (r/set-window-size width height))
 
     (if-let [selected-cmd (find (fn [cmd] (cmd :selected)) (values commands))]
-      (do (r/close-window)
+      (do (donezo!)
         ((selected-cmd :fn))
         # let's not re-run the cmd at 60 FPS or whatever
         (set (selected-cmd :selected) nil)))))

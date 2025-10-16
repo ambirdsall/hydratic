@@ -14,7 +14,7 @@
             height (+ font-size (* 2 y-margin))
             elapsed (- (os/time) start)]
         (r/set-window-size width height)
-        (when (< 1 elapsed) (r/close-window)))
+        (when (< 1 elapsed) (donezo!)))
       (write-ln! active-space 1))))
 
 (defn- render-test-hydra! []
