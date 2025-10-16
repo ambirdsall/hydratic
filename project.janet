@@ -6,3 +6,7 @@
   :dependencies ["https://github.com/janet-lang/jaylib.git"
                  "https://github.com/andrewchambers/janet-sh.git"
                  "spork"])
+
+(declare-executable
+  :name "hydratic"
+  :entry "main.janet")
