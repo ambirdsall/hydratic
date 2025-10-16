@@ -1,0 +1,11 @@
+#+title: hydratic: define transient-like popup windows
+
+* installation
+Running this ought to do it:
+#+begin_src sh
+make install
+#+end_src
+If either =$INSTALL_BIN= or =$XDG_BIN_HOME= is defined, the binary will be installed to there,
+or to =$HOME/.local/bin= by default.
+
+* TODO usage
