@@ -2,10 +2,11 @@
 
 all: build
 
-deps: jpm_tree
+deps: .deps_installed
 
-jpm_tree:
+.deps_installed:
 	jpm -l deps
+	touch .deps_installed
 
 build: deps
 	jpm -l build
