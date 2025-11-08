@@ -4,18 +4,16 @@
 
 (use ./lib/gui)
 
-(defn- render-workspace-name! []
-  (let [workspaces (j/decode ($<_ niri msg --json workspaces))
-        active-space ((find |(get $ "is_focused") workspaces) "name")
-        start (os/time)]
+(defn- render-timed-banner! [banner-text]
+  (let [start (os/time)]
     (in-window
       "ok but where am i tho"
-      (let [width (+ (text-width active-space) (* 2 x-margin))
+      (let [width (+ (text-width banner-text) (* 2 x-margin))
             height (+ font-size (* 2 y-margin))
             elapsed (- (os/time) start)]
         (r/set-window-size width height)
         (when (< 1 elapsed) (donezo!)))
-      (write-ln! active-space))))
+      (write-ln! banner-text))))
 
 (defn- render-test-hydra! []
   (render-hydra!
@@ -27,7 +25,7 @@
 (defn main [& invocation]
   (match invocation
     [_ "test-hydra"] (render-test-hydra!)
-    [_ "niri" "ws"] (render-workspace-name!)
+    [_ "timed-banner" banner-text] (render-timed-banner! banner-text)
     _ (render-test-hydra!)))
 
 # Local Variables:
