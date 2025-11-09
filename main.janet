@@ -26,7 +26,7 @@
   (match invocation
     [_ "test-hydra"] (render-test-hydra!)
     [_ "timed-banner" banner-text] (render-timed-banner! banner-text)
-    _ (render-test-hydra!)))
+    _ (render-timed-banner! (string/join invocation " "))))
 
 # Local Variables:
 # ajrepl-start-cmd-line: ("jpm" "-l" "janet" "-s" "-d")
