@@ -83,6 +83,8 @@
 
     (var longest 0)
 
+    (write-ln! title)
+    (write-ln! "")
     (loop [[key spec] :pairs commands]
       (set longest (max
                      longest
@@ -90,9 +92,9 @@
       (write-cmd! (string key) (spec :title))
       (when (r/key-down? key) (set (spec :selected) true)))
 
-    (let [lines (length commands)
-          height (+ (* font-size (length commands))
-                    (* line-spacing (length commands))
+    (let [lines (+ 2 (length commands))
+          height (+ (* font-size lines)
+                    (* line-spacing lines)
                     (* 2 y-margin))
           width (+ longest (* 2 x-margin))]
       (set window-width width)
