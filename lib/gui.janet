@@ -17,6 +17,7 @@
 (var font-size 30)
 (var letter-spacing 1)
 (var line-spacing 10)
+(var title-font-size 48)
 
 (defmacro in-window [title & forms]
   ~(do
@@ -28,46 +29,54 @@
                  (font-path "InterVariable.ttf")
                  font-size))
 
-     (defn text-width [text]
-       (let [[width _] (,r/measure-text-ex font text font-size letter-spacing)]
+     (def title-font (,r/load-font-ex
+                       (font-path "InterVariable.ttf")
+                       title-font-size))
+
+     (defn text-width [text &opt is-title]
+       (default is-title false)
+       (def size (if is-title title-font-size font-size))
+       (let [f (if is-title title-font font)
+             [width _] (,r/measure-text-ex f text size letter-spacing)]
          width))
 
-     (defn write [text x-and-y-positions color]
-         (,r/draw-text-ex font text x-and-y-positions font-size letter-spacing color))
+     (defn write [text x-and-y-positions color &opt size]
+       (default size font-size)
+       (let [f (if (= size title-font-size) title-font font)]
+         (,r/draw-text-ex f text x-and-y-positions size letter-spacing color)))
 
      (defn write-ln! [text]
-       (let [y-offset (+ (* font-size (- (dyn :line) 1))
-                           (* line-spacing (- (dyn :line) 1))
-                         y-margin)]
-         (write text [x-margin y-offset] :green))
-       (setdyn :line (inc (dyn :line))))
+       (write text [x-margin (dyn :vertical-offset)] :green)
+       (setdyn :vertical-offset (+ (dyn :vertical-offset) font-size line-spacing)))
 
      (defn write-cmd! [key-char text]
-       (let [first (string/slice text 0 1)
-             rest (string/slice text 1)
-             y-offset (+ (* font-size (- (dyn :line) 1))
-                           (* line-spacing (- (dyn :line) 1))
-                         y-margin)
-             x-offset-rest (+ (text-width first) x-margin letter-spacing)]
+       (let [y-offset (dyn :vertical-offset)
+             bracket-width (text-width "[")
+             key-width (text-width key-char)
+             prefix-width (text-width (string "[" key-char "] "))]
          (write "["
                 [x-margin y-offset]
                 :green)
          (write key-char
-                [(+ x-margin (text-width "[")) y-offset]
+                [(+ x-margin bracket-width) y-offset]
                 :yellow)
          (write "] "
-                [(+ x-margin (text-width (string "[" key-char))) y-offset]
+                [(+ x-margin bracket-width key-width) y-offset]
                 :green)
          (write text
-                [(+ x-margin (text-width (string "[" key-char "] "))) y-offset]
+                [(+ x-margin prefix-width) y-offset]
                 :green))
-       (setdyn :line (inc (dyn :line))))
+       (setdyn :vertical-offset (+ (dyn :vertical-offset) font-size line-spacing)))
+
+     (defn write-title! [text]
+       (write text [x-margin (dyn :vertical-offset)] :green title-font-size)
+       (setdyn :vertical-offset (+ (dyn :vertical-offset) title-font-size line-spacing)))
 
      (var donezo false)
      (defn donezo! [] (set donezo true))
 
      (while (not (or donezo (,r/window-should-close)))
-       (setdyn :line 1)
+       (setdyn :vertical-offset y-margin)
        (,r/begin-drawing)
        (,r/clear-background [0 0 0])
        (,r/draw-rectangle 0 0 ,window-width ,window-height :dark-gray)
@@ -81,10 +90,11 @@
   (in-window
     title
 
-    (var longest 0)
+    # seed `longest` with the title width, so we don't need to take any extra steps to
+    # account for that later
+    (var longest (text-width title :title-size))
 
-    (write-ln! title)
-    (write-ln! "")
+    (write-title! title)
     (loop [[key spec] :pairs commands]
       (set longest (max
                      longest
@@ -92,9 +102,14 @@
       (write-cmd! (string key) (spec :title))
       (when (r/key-down? key) (set (spec :selected) true)))
 
-    (let [lines (+ 2 (length commands))
-          height (+ (* font-size lines)
-                    (* line-spacing lines)
+    # Calculate window height accounting for:
+    # - title at title-font-size + line-spacing
+    # - N command lines at font-size + line-spacing each
+    # - top and bottom y-margin
+    (let [title-height (+ title-font-size line-spacing)
+          commands-height (* (+ font-size line-spacing) (length commands))
+          height (+ title-height
+                    commands-height
                     (* 2 y-margin))
           width (+ longest (* 2 x-margin))]
       (set window-width width)
