@@ -22,11 +22,13 @@
      :b @{:title "thing b" :fn (fn [] ($ notify-send "you are")) }
      :s @{:title "go to sleep, little baby" :fn (fn [] ($ systemctl suspend))}}))
 
+(defn- words->str [words] (string/join words " "))
+
 (defn main [& invocation]
   (match invocation
     [_ "test-hydra"] (render-test-hydra!)
-    [_ "timed-banner" banner-text] (render-timed-banner! banner-text)
-    _ (render-timed-banner! (string/join invocation " "))))
+    [_ "timed-banner" & banner-text] (render-timed-banner! (words->str banner-text))
+    _ (render-timed-banner! (words->str invocation))))
 
 # Local Variables:
 # ajrepl-start-cmd-line: ("jpm" "-l" "janet" "-s" "-d")
