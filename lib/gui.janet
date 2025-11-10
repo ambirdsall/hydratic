@@ -98,8 +98,8 @@
     (loop [[key spec] :pairs commands]
       (set longest (max
                      longest
-                     (text-width (string "[" key "] " (spec :title)))))
-      (write-cmd! (string key) (spec :title))
+                     (text-width (string "[" key "] " (spec :desc)))))
+      (write-cmd! (string key) (spec :desc))
       (when (r/key-down? key) (set (spec :selected) true)))
 
     # Calculate window height accounting for:

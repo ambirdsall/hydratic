@@ -7,9 +7,9 @@
 (defn- render-test-hydra! []
   (render-hydra!
     "My cool test hydra"
-    {:a @{:title "thing a" :fn (fn [] ($ notify-send "hey hey my my")) }
-     :b @{:title "thing b" :fn (fn [] ($ notify-send "you are")) }
-     :s @{:title "go to sleep, little baby" :fn (fn [] ($ systemctl suspend))}}))
+    {:a @{:desc "thing a" :fn (fn [] ($ notify-send "hey hey my my")) }
+     :b @{:desc "thing b" :fn (fn [] ($ notify-send "you are")) }
+     :s @{:desc "go to sleep, little baby" :fn (fn [] ($ systemctl suspend))}}))
 
 (defn- words->str [words] (string/join words " "))
 
