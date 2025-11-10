@@ -4,17 +4,6 @@
 
 (use ./lib/gui)
 
-(defn- render-timed-banner! [banner-text]
-  (let [start (os/time)]
-    (in-window
-      banner-text
-      (let [width (+ (text-width banner-text :title) (* 2 x-margin))
-            height (+ title-font-size (* 2 y-margin))
-            elapsed (- (os/time) start)]
-        (r/set-window-size width height)
-        (when (< 1 elapsed) (donezo!)))
-      (write-title! banner-text))))
-
 (defn- render-test-hydra! []
   (render-hydra!
     "My cool test hydra"
