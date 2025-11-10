@@ -2,6 +2,7 @@
 (import jaylib :as r) # the "r" is for "raylib"
 (import spork/json :as j) # why it's not "j" for "jaylib": json has no such fallback
 
+(use ./lib/cli)
 (use ./lib/gui)
 
 (defn- render-test-hydra! []
@@ -11,7 +12,6 @@
      :b @{:desc "thing b" :fn (fn [] ($ notify-send "you are")) }
      :s @{:desc "go to sleep, little baby" :fn (fn [] ($ systemctl suspend))}}))
 
-(defn- words->str [words] (string/join words " "))
 
 (defn main [& invocation]
   (match invocation
