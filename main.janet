@@ -8,12 +8,12 @@
   (let [start (os/time)]
     (in-window
       "ok but where am i tho"
-      (let [width (+ (text-width banner-text) (* 2 x-margin))
-            height (+ font-size (* 2 y-margin))
+      (let [width (+ (text-width banner-text :title) (* 2 x-margin))
+            height (+ title-font-size (* 2 y-margin))
             elapsed (- (os/time) start)]
         (r/set-window-size width height)
         (when (< 1 elapsed) (donezo!)))
-      (write-ln! banner-text))))
+      (write-title! banner-text))))
 
 (defn- render-test-hydra! []
   (render-hydra!
