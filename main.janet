@@ -7,7 +7,7 @@
 (defn- render-timed-banner! [banner-text]
   (let [start (os/time)]
     (in-window
-      "ok but where am i tho"
+      banner-text
       (let [width (+ (text-width banner-text :title) (* 2 x-margin))
             height (+ title-font-size (* 2 y-margin))
             elapsed (- (os/time) start)]
