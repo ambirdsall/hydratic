@@ -22,6 +22,8 @@
     [_ "test-hydra"] (render-test-hydra!)
     [_ "timed-banner" & banner-text] (render-timed-banner! (words->str banner-text))
     [_ "from-json" spec] (render-hydra-from-json! spec)
+    # TODO input sanity checks, validation, etc
+    [_ spec] (render-hydra-from-json! spec)
     _ (render-timed-banner! (words->str invocation))))
 
 # Local Variables:
